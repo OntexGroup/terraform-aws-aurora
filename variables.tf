@@ -1,19 +1,9 @@
-variable "name" {
-  type        = string
-  description = "Name given to DB subnet group"
-}
-
 variable "subnets" {
   type        = list(string)
   description = "List of subnet IDs to use"
 }
 
-variable "envname" {
-  type        = string
-  description = "Environment name (eg,test, stage or prod)"
-}
-
-variable "envtype" {
+variable "env" {
   type        = string
   description = "Environment type (eg,prod or nonprod)"
 }
@@ -190,13 +180,14 @@ variable "cw_eval_period_replica_lag" {
 
 variable "engine" {
   type        = string
-  default     = "aurora"
+  default     = "aurora-mysql"
   description = "Aurora database engine type, currently aurora, aurora-mysql or aurora-postgresql"
 }
 
 variable "engine-version" {
   type        = string
-  default     = "5.6.10a"
+  // default     = "5.7.12"
+  default = "5.7.mysql_aurora.2.04.4"
   description = "Aurora database engine version."
 }
 
@@ -254,3 +245,37 @@ variable "enabled" {
   description = "Whether the database resources should be created"
 }
 
+variable "namespace" {
+  type = string
+  default = "ontex"
+  description = "Company owning the aws account"
+}
+
+variable "engine_family" {
+  type = string
+  default = "db.t2.small"
+  description = "Amazon RDS Instance Types"
+}
+
+variable "project" {
+  type = string
+  description = "Used to identify the project(s) the resource supports"
+}
+
+variable "aws" {
+  type = any
+  default = {}
+  description = "aws region parameters"
+}
+
+variable "family" {
+  type = string
+  default = "aurora-mysql5.7"
+  description = "Instance family for the db parameters group"
+}
+
+variable "custom_tags" {
+  type = any
+  default = {}
+  description = "A list of custom tags to add to the resource"
+}
