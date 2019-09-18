@@ -1,3 +1,24 @@
+// DB Security Group
+resource "aws_security_group" "aurora_security_group" {
+  name = "${var.namespace}-${var.env}-${var.project}-aurora-sg"
+  description = "Allow mysql port 3306"
+  vpc_id = var.vpc_id
+
+  ingress {
+    from_port = 3306
+    protocol = "-1"
+    to_port = 3306
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    protocol = ""
+    to_port = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 // DB Subnet Group creation
 resource "aws_db_subnet_group" "main" {
   count       = var.enabled ? 1 : 0
@@ -82,7 +103,7 @@ resource "aws_rds_cluster" "default" {
   preferred_maintenance_window        = var.preferred_maintenance_window
   port                                = var.port
   db_subnet_group_name                = aws_db_subnet_group.main[0].name
-  vpc_security_group_ids              = var.security_groups
+  vpc_security_group_ids              = aws_security_group.aurora_security_group.id
   snapshot_identifier                 = var.snapshot_identifier
   storage_encrypted                   = var.storage_encrypted
   apply_immediately                   = var.apply_immediately

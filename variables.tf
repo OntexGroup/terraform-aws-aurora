@@ -279,3 +279,8 @@ variable "custom_tags" {
   default = {}
   description = "A list of custom tags to add to the resource"
 }
+
+variable "vpc_id" {
+  type = string
+  description = "VPC id for the vpc"
+}
