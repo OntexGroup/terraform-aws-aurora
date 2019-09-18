@@ -21,3 +21,6 @@ output "cluster_identifier" {
   value = join("", aws_rds_cluster.default.*.id)
 }
 
+output "cluster_security_group_id" {
+  value = aws_security_group.aurora_security_group.id
+}

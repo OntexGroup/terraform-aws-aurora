@@ -6,14 +6,14 @@ resource "aws_security_group" "aurora_security_group" {
 
   ingress {
     from_port = 3306
-    protocol = "-1"
+    protocol = "tcp"
     to_port = 3306
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port = 0
-    protocol = ""
+    protocol = "-1"
     to_port = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -103,7 +103,7 @@ resource "aws_rds_cluster" "default" {
   preferred_maintenance_window        = var.preferred_maintenance_window
   port                                = var.port
   db_subnet_group_name                = aws_db_subnet_group.main[0].name
-  vpc_security_group_ids              = aws_security_group.aurora_security_group.id
+  vpc_security_group_ids              = [ aws_security_group.aurora_security_group.id ]
   snapshot_identifier                 = var.snapshot_identifier
   storage_encrypted                   = var.storage_encrypted
   apply_immediately                   = var.apply_immediately
