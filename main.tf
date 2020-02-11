@@ -48,7 +48,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_0" {
   identifier                   = var.identifier_prefix != "" ? format("%s-node-0", var.identifier_prefix) : format("%s-aurora-node-0", var.env)
   cluster_identifier           = aws_rds_cluster.default[0].id
   engine                       = var.engine
-  engine_version               = var.engine-version
+  engine_version               = var.engine_version
   instance_class               = var.instance_type
   publicly_accessible          = var.publicly_accessible
   db_subnet_group_name         = aws_db_subnet_group.main[0].name
@@ -68,7 +68,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
   depends_on                   = [aws_rds_cluster_instance.cluster_instance_0]
   count                        = var.enabled ? var.replica_scale_enabled ? var.replica_scale_min : var.replica_count : 0
   engine                       = var.engine
-  engine_version               = var.engine-version
+  engine_version               = var.engine_version
   identifier                   = var.identifier_prefix != "" ? format("%s-node-%d", var.identifier_prefix, count.index + 1) : format("%s-aurora-node-%d", var.env, count.index + 1)
   cluster_identifier           = aws_rds_cluster.default[0].id
   instance_class               = var.instance_type
@@ -93,7 +93,7 @@ resource "aws_rds_cluster" "default" {
   cluster_identifier                  = var.identifier_prefix != "" ? format("%s-cluster", var.identifier_prefix) : format("%s-aurora-cluster", var.env)
   availability_zones                  = var.azs
   engine                              = var.engine
-  engine_version                      = var.engine-version
+  engine_version                      = var.engine_version
   master_username                     = var.username
   master_password                     = var.password
   final_snapshot_identifier           = "${var.final_snapshot_identifier}-${random_id.server[0].hex}"
