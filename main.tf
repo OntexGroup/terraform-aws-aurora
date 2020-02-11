@@ -1,20 +1,20 @@
 // DB Security Group
 resource "aws_security_group" "aurora_security_group" {
-  name = "${var.namespace}-${var.env}-${var.project}-aurora-sg"
+  name        = "${var.namespace}-${var.env}-${var.project}-aurora-sg"
   description = "Allow mysql port 3306"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   ingress {
-    from_port = 3306
-    protocol = "tcp"
-    to_port = 3306
+    from_port   = 3306
+    protocol    = "tcp"
+    to_port     = 3306
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port = 0
-    protocol = "-1"
-    to_port = 0
+    from_port   = 0
+    protocol    = "-1"
+    to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -29,13 +29,13 @@ resource "aws_db_subnet_group" "main" {
 }
 
 resource "aws_db_parameter_group" "aurora_db_parameter_group" {
-  family      = "${var.family}"
+  family      = var.family
   name        = "${var.namespace}-${var.env}-${var.project}-db-parameter-group"
   description = "${var.namespace}-${var.env}-${var.project}-db-parameter-group"
 }
 
 resource "aws_rds_cluster_parameter_group" "aurora_cluster_parameter_group" {
-  family      = "${var.family}"
+  family      = var.family
   name        = "${var.namespace}-${var.env}-${var.project}-cluster-parameter-group"
   description = "${var.namespace}-${var.env}-${var.project}-cluster-parameter-group"
 }
@@ -103,14 +103,14 @@ resource "aws_rds_cluster" "default" {
   preferred_maintenance_window        = var.preferred_maintenance_window
   port                                = var.port
   db_subnet_group_name                = aws_db_subnet_group.main[0].name
-  vpc_security_group_ids              = [ aws_security_group.aurora_security_group.id ]
+  vpc_security_group_ids              = [aws_security_group.aurora_security_group.id]
   snapshot_identifier                 = var.snapshot_identifier
   storage_encrypted                   = var.storage_encrypted
   apply_immediately                   = var.apply_immediately
   db_cluster_parameter_group_name     = aws_rds_cluster_parameter_group.aurora_cluster_parameter_group.name
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
 
-  tags                                = merge(var.custom_tags)
+  tags = merge(var.custom_tags)
 }
 
 // Geneate an ID when an environment is initialised

@@ -185,9 +185,9 @@ variable "engine" {
 }
 
 variable "engine-version" {
-  type        = string
+  type = string
   // default     = "5.7.12"
-  default = "5.7.mysql_aurora.2.04.4"
+  default     = "5.7.mysql_aurora.2.04.4"
   description = "Aurora database engine version."
 }
 
@@ -246,41 +246,41 @@ variable "enabled" {
 }
 
 variable "namespace" {
-  type = string
-  default = "ontex"
+  type        = string
+  default     = "ontex"
   description = "Company owning the aws account"
 }
 
 variable "engine_family" {
-  type = string
-  default = "db.t2.small"
+  type        = string
+  default     = "db.t2.small"
   description = "Amazon RDS Instance Types"
 }
 
 variable "project" {
-  type = string
+  type        = string
   description = "Used to identify the project(s) the resource supports"
 }
 
 variable "aws" {
-  type = any
-  default = {}
+  type        = any
+  default     = {}
   description = "aws region parameters"
 }
 
 variable "family" {
-  type = string
-  default = "aurora-mysql5.7"
+  type        = string
+  default     = "aurora-mysql5.7"
   description = "Instance family for the db parameters group"
 }
 
 variable "custom_tags" {
-  type = any
-  default = {}
+  type        = any
+  default     = {}
   description = "A list of custom tags to add to the resource"
 }
 
 variable "vpc_id" {
-  type = string
+  type        = string
   description = "VPC id for the vpc"
 }
