@@ -84,7 +84,6 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
   performance_insights_enabled = var.performance_insights_enabled
 
   tags = merge(var.custom_tags)
-
 }
 
 // Create DB Cluster
@@ -111,6 +110,10 @@ resource "aws_rds_cluster" "default" {
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
 
   tags = merge(var.custom_tags)
+
+  lifecycle {
+    ignore_changes = [ "master_password" ]
+  }
 }
 
 // Geneate an ID when an environment is initialised
