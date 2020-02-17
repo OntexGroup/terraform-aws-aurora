@@ -31,6 +31,7 @@ output "cluster_security_group_id" {
 
 output "db_master_password" {
   value = aws_rds_cluster.default[0].master_password
+  sensitive = true
   description = "Aurora master password."
 }
 
