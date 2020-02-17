@@ -30,11 +30,11 @@ output "cluster_security_group_id" {
 }
 
 output "db_master_password" {
-  value = aws_rds_cluster.default.master_password
+  value = aws_rds_cluster.default[0].master_password
   description = "Aurora master password."
 }
 
 output "db_master_user" {
-  value = aws_rds_cluster.default.master_username
+  value = aws_rds_cluster.default[0].master_username
   description = "Aurora master user."
 }
