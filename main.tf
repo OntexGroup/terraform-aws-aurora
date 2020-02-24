@@ -109,6 +109,7 @@ resource "aws_rds_cluster" "default" {
   db_cluster_parameter_group_name     = aws_rds_cluster_parameter_group.aurora_cluster_parameter_group.name
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
   enabled_cloudwatch_logs_exports     = var.enabled_cloudwatch_logs_exports
+  deletion_protection                 = var.deletion_protection
 
   tags = merge(var.custom_tags)
 
