@@ -284,3 +284,9 @@ variable "vpc_id" {
   type        = string
   description = "VPC id for the vpc"
 }
+
+variable "enabled_cloudwatch_logs_exports" {
+  type = list
+  description = "List of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported"
+  default = [ "error" ]
+}

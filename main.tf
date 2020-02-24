@@ -108,6 +108,7 @@ resource "aws_rds_cluster" "default" {
   apply_immediately                   = var.apply_immediately
   db_cluster_parameter_group_name     = aws_rds_cluster_parameter_group.aurora_cluster_parameter_group.name
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
+  enabled_cloudwatch_logs_exports     = var.enabled_cloudwatch_logs_exports
 
   tags = merge(var.custom_tags)
 
