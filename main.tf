@@ -1,5 +1,3 @@
-data "aws_caller_identity" "current" {}
-
 // DB Security Group
 resource "aws_security_group" "aurora_security_group" {
   name        = "${var.namespace}-${var.env}-${var.project}-aurora-sg"
