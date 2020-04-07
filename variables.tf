@@ -285,11 +285,26 @@ variable "vpc_id" {
   description = "VPC id for the vpc"
 }
 
-variable "enabled_cloudwatch_logs_exports" {
-  type = list
+# To enable slow query log and general log, you need to set all variable below.
+variable "enable_cloudwatch_logs_exports" {
+  type = list(string)
   description = "List of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported"
   default = [ "error" ]
 }
+
+variable "enable_slow_query_log" {
+  type = bool
+  description = "This value will enable slow query log to cloudwatch for the cluster"
+  default = false
+}
+
+variable "enable_general_log" {
+  type = bool
+  description = "This value will enable general log to cloudwatch for the cluster"
+  default = false
+}
+
+
 
 variable "deletion_protection" {
   type = bool

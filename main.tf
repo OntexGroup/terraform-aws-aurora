@@ -38,6 +38,16 @@ resource "aws_rds_cluster_parameter_group" "aurora_cluster_parameter_group" {
   family      = var.family
   name        = "${var.namespace}-${var.env}-${var.project}-cluster-parameter-group"
   description = "${var.namespace}-${var.env}-${var.project}-cluster-parameter-group"
+
+  parameter {
+    name  = "general_log"
+    value = var.enable_general_log? 1: 0
+  }
+
+  parameter {
+    name  = "slow_query_log"
+    value = var.enable_slow_query_log? 1: 0
+  }
 }
 
 // Create single DB instance
@@ -108,7 +118,7 @@ resource "aws_rds_cluster" "default" {
   apply_immediately                   = var.apply_immediately
   db_cluster_parameter_group_name     = aws_rds_cluster_parameter_group.aurora_cluster_parameter_group.name
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
-  enabled_cloudwatch_logs_exports     = var.enabled_cloudwatch_logs_exports
+  enabled_cloudwatch_logs_exports     = var.enable_cloudwatch_logs_exports
   deletion_protection                 = var.deletion_protection
 
   tags = merge(var.custom_tags)
