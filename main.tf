@@ -103,7 +103,7 @@ resource "aws_rds_cluster" "default" {
   availability_zones                  = var.azs
   engine                              = var.engine
   engine_version                      = var.engine_version
-  iam_roles                           = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
+  iam_roles                           = [ "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS" ]
   master_username                     = var.username
   master_password                     = var.password
   final_snapshot_identifier           = "${var.final_snapshot_identifier}-${random_id.server[0].hex}"
