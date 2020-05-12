@@ -14,28 +14,28 @@ output "all_instance_endpoints_list" {
 
 // A read-only endpoint for the Aurora cluster, automatically load-balanced across replicas
 output "reader_endpoint" {
-  value = join("", aws_rds_cluster.default.*.reader_endpoint)
+  value       = join("", aws_rds_cluster.default.*.reader_endpoint)
   description = "Aurora reader endpoint."
 }
 
 // The ID of the RDS Cluster
 output "cluster_identifier" {
-  value = join("", aws_rds_cluster.default.*.id)
+  value       = join("", aws_rds_cluster.default.*.id)
   description = "Aurora identifier id."
 }
 
 output "cluster_security_group_id" {
-  value = aws_security_group.aurora_security_group.id
+  value       = aws_security_group.aurora_security_group.id
   description = "Security group id attach to the aurora cluster."
 }
 
 output "db_master_password" {
-  value = aws_rds_cluster.default[0].master_password
-  sensitive = true
+  value       = aws_rds_cluster.default[0].master_password
+  sensitive   = true
   description = "Aurora master password."
 }
 
 output "db_master_user" {
-  value = aws_rds_cluster.default[0].master_username
+  value       = aws_rds_cluster.default[0].master_username
   description = "Aurora master user."
 }

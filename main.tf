@@ -1,6 +1,25 @@
+data "aws_caller_identity" "account_id" {}
+
+// Random password
+resource "random_password" "password" {
+  length  = 16
+  special = false
+}
+
+resource "random_string" "resource_id" {
+  length  = 3
+  upper   = false
+  special = false
+}
+
+locals {
+  name_identifier = "${var.project}-${lookup(var.short_env, var.env, "WTF-fixenv")}-${var.role}-${random_string.resource_id.id}"
+  account_id      = data.aws_caller_identity.account_id.account_id
+}
+
 // DB Security Group
 resource "aws_security_group" "aurora_security_group" {
-  name        = "${var.namespace}-${var.env}-${var.project}-aurora-sg"
+  name        = local.name_identifier
   description = "Allow mysql port 3306"
   vpc_id      = var.vpc_id
 
@@ -22,7 +41,7 @@ resource "aws_security_group" "aurora_security_group" {
 // DB Subnet Group creation
 resource "aws_db_subnet_group" "main" {
   count       = var.enabled ? 1 : 0
-  name        = "${var.namespace}-${var.env}-${var.project}-subnet-group"
+  name        = local.name_identifier
   description = "Group of DB subnets"
   subnet_ids  = var.subnets
   tags        = merge(var.custom_tags)
@@ -30,45 +49,44 @@ resource "aws_db_subnet_group" "main" {
 
 resource "aws_db_parameter_group" "aurora_db_parameter_group" {
   family      = var.family
-  name        = "${var.namespace}-${var.env}-${var.project}-db-parameter-group"
-  description = "${var.namespace}-${var.env}-${var.project}-db-parameter-group"
+  name        = local.name_identifier
+  description = "aws_db_parameter_group ${local.name_identifier}"
 
   parameter {
     name  = "general_log"
-    value = var.enable_general_log? 1: 0
+    value = var.enable_general_log ? 1 : 0
   }
 
   parameter {
     name  = "slow_query_log"
-    value = var.enable_slow_query_log? 1: 0
+    value = var.enable_slow_query_log ? 1 : 0
   }
 }
 
 resource "aws_rds_cluster_parameter_group" "aurora_cluster_parameter_group" {
   family      = var.family
-  name        = "${var.namespace}-${var.env}-${var.project}-cluster-parameter-group"
-  description = "${var.namespace}-${var.env}-${var.project}-cluster-parameter-group"
+  name        = local.name_identifier
+  description = "aws_rds_cluster_parameter_group ${local.name_identifier}"
 
   parameter {
     name  = "general_log"
-    value = var.enable_general_log? 1: 0
+    value = var.enable_general_log ? 1 : 0
   }
 
   parameter {
     name  = "slow_query_log"
-    value = var.enable_slow_query_log? 1: 0
+    value = var.enable_slow_query_log ? 1 : 0
   }
 }
 
 // Create single DB instance
 resource "aws_rds_cluster_instance" "cluster_instance_0" {
-  count      = var.enabled ? 1 : 0
-  depends_on = [aws_iam_role_policy_attachment.rds-enhanced-monitoring-policy-attach]
-
-  identifier                   = var.identifier_prefix != "" ? format("%s-node-0", var.identifier_prefix) : format("%s-aurora-node-0", var.env)
-  cluster_identifier           = aws_rds_cluster.default[0].id
+  count                        = var.enabled ? 1 : 0
+  depends_on                   = [aws_iam_role_policy_attachment.rds-enhanced-monitoring-policy-attach]
   engine                       = var.engine
   engine_version               = var.engine_version
+  identifier                   = format("%s-node-0", local.name_identifier)
+  cluster_identifier           = aws_rds_cluster.default[0].id
   instance_class               = var.instance_type
   publicly_accessible          = var.publicly_accessible
   db_subnet_group_name         = aws_db_subnet_group.main[0].name
@@ -89,7 +107,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
   count                        = var.enabled ? var.replica_scale_enabled ? var.replica_scale_min : var.replica_count : 0
   engine                       = var.engine
   engine_version               = var.engine_version
-  identifier                   = var.identifier_prefix != "" ? format("%s-node-%d", var.identifier_prefix, count.index + 1) : format("%s-aurora-node-%d", var.env, count.index + 1)
+  identifier                   = format("%s-node-%d", local.name_identifier, count.index + 1)
   cluster_identifier           = aws_rds_cluster.default[0].id
   instance_class               = var.instance_type
   publicly_accessible          = var.publicly_accessible
@@ -109,13 +127,13 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
 // Create DB Cluster
 resource "aws_rds_cluster" "default" {
   count                               = var.enabled ? 1 : 0
-  cluster_identifier                  = var.identifier_prefix != "" ? format("%s-cluster", var.identifier_prefix) : format("%s-aurora-cluster", var.env)
+  cluster_identifier                  = local.name_identifier
   availability_zones                  = var.azs
   engine                              = var.engine
   engine_version                      = var.engine_version
-  iam_roles                           = [ "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS" ]
+  iam_roles                           = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"]
   master_username                     = var.username
-  master_password                     = var.password
+  master_password                     = random_password.password.result
   final_snapshot_identifier           = "${var.final_snapshot_identifier}-${random_id.server[0].hex}"
   skip_final_snapshot                 = var.skip_final_snapshot
   backup_retention_period             = var.backup_retention_period
@@ -134,9 +152,6 @@ resource "aws_rds_cluster" "default" {
 
   tags = merge(var.custom_tags)
 
-  lifecycle {
-    ignore_changes = [ "master_password" ]
-  }
 }
 
 // Geneate an ID when an environment is initialised
@@ -164,7 +179,7 @@ data "aws_iam_policy_document" "monitoring-rds-assume-role-policy" {
 
 resource "aws_iam_role" "rds-enhanced-monitoring" {
   count              = var.enabled && var.monitoring_interval > 0 ? 1 : 0
-  name_prefix        = "rds-enhanced-mon-${var.env}-"
+  name_prefix        = "${local.name_identifier}-"
   assume_role_policy = data.aws_iam_policy_document.monitoring-rds-assume-role-policy[0].json
 }
 

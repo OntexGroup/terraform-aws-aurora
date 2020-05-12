@@ -47,11 +47,6 @@ variable "username" {
   description = "Master DB username"
 }
 
-variable "password" {
-  type        = string
-  description = "Master DB password"
-}
-
 variable "final_snapshot_identifier" {
   type        = string
   default     = "final"
@@ -287,28 +282,48 @@ variable "vpc_id" {
 
 # To enable slow query log and general log, you need to set all variable below.
 variable "enable_cloudwatch_logs_exports" {
-  type = list(string)
+  type        = list(string)
   description = "List of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported"
-  default = [ "error" ]
+  default     = ["error"]
 }
 
 variable "enable_slow_query_log" {
-  type = bool
+  type        = bool
   description = "This value will enable slow query log to cloudwatch for the cluster"
-  default = false
+  default     = false
 }
 
 variable "enable_general_log" {
-  type = bool
+  type        = bool
   description = "This value will enable general log to cloudwatch for the cluster"
-  default = false
+  default     = false
 }
-
-
 
 variable "deletion_protection" {
-  type = bool
+  type        = bool
   description = " If the DB instance should have deletion protection enabled"
-  default = false
+  default     = false
 }
 
+variable "short_env" {
+  type = map(string)
+  default = {
+    development   = "dev"
+    developement  = "dev"
+    production    = "prod"
+    prod          = "prod"
+    prd           = "prod"
+    staging       = "stag"
+    integration   = "int"
+    uat           = "uat"
+    preproduction = "pprod"
+    preprod       = "pprod"
+    qualif        = "qa"
+  }
+  description = "Abbreviate environment definition."
+}
+
+variable "role" {
+  type        = string
+  description = "An unique identifier that gives more information on the resource (webserver, front, etc..)"
+}
