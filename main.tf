@@ -32,6 +32,16 @@ resource "aws_db_parameter_group" "aurora_db_parameter_group" {
   family      = var.family
   name        = "${var.namespace}-${var.env}-${var.project}-db-parameter-group"
   description = "${var.namespace}-${var.env}-${var.project}-db-parameter-group"
+
+  parameter {
+    name  = "general_log"
+    value = var.enable_general_log? 1: 0
+  }
+
+  parameter {
+    name  = "slow_query_log"
+    value = var.enable_slow_query_log? 1: 0
+  }
 }
 
 resource "aws_rds_cluster_parameter_group" "aurora_cluster_parameter_group" {
