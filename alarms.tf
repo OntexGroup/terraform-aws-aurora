@@ -98,3 +98,9 @@ resource "aws_cloudwatch_metric_alarm" "alarm_rds_replica_lag" {
   }
 }
 
+resource "aws_db_event_subscription" "db_event" {
+  name        = "${aws_rds_cluster.default[0].id}-rds-event-subscription"
+  sns_topic   = var.cw_sns_topic
+
+  source_type = "db-instance"
+}
