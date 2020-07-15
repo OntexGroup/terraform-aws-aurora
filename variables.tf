@@ -327,3 +327,8 @@ variable "role" {
   type        = string
   description = "An unique identifier that gives more information on the resource (webserver, front, etc..)"
 }
+
+variable "cloudwatch_sns_topic_arn" {
+  type        = string
+  description = "Precise on which SNS topic trigger events on Slack"
+}
