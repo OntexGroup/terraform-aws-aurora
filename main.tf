@@ -203,3 +203,19 @@ resource "aws_appautoscaling_policy" "autoscaling" {
     target_value       = var.replica_scale_cpu
   }
 }
+
+resource "aws_secretsmanager_secret" "db_secretmanager" {
+  name = var.identifier_prefix != "" ? format("%s-cluster", var.identifier_prefix) : format("%s-aurora-cluster", var.env)
+  description = "DB instance credentials"
+}
+
+resource "aws_secretsmanager_secret_version" "db_secret_version" {
+  secret_id = aws_secretsmanager_secret.db_secretmanager.id
+  secret_string = jsonencode({
+    db_master_password = aws_rds_cluster.default[0].master_password
+    db_master_user = aws_rds_cluster.default[0].master_username
+    db_cluster_address = join("", aws_rds_cluster.default.*.endpoint)
+    db_cluster_port = var.port
+    db_cluster_endpoint = "${join("", aws_rds_cluster.default.*.endpoint)}:${var.port}"
+  })
+}
