@@ -1,3 +1,6 @@
+locals {
+  name_identifier = var.identifier_prefix != "" ? format("%s-cluster", var.identifier_prefix) : format("%s-aurora-cluster", var.env)
+}
 // DB Security Group
 resource "aws_security_group" "aurora_security_group" {
   name        = "${var.namespace}-${var.env}-${var.project}-aurora-sg"
@@ -35,12 +38,12 @@ resource "aws_db_parameter_group" "aurora_db_parameter_group" {
 
   parameter {
     name  = "general_log"
-    value = var.enable_general_log? 1: 0
+    value = var.enable_general_log ? 1 : 0
   }
 
   parameter {
     name  = "slow_query_log"
-    value = var.enable_slow_query_log? 1: 0
+    value = var.enable_slow_query_log ? 1 : 0
   }
 }
 
@@ -51,12 +54,12 @@ resource "aws_rds_cluster_parameter_group" "aurora_cluster_parameter_group" {
 
   parameter {
     name  = "general_log"
-    value = var.enable_general_log? 1: 0
+    value = var.enable_general_log ? 1 : 0
   }
 
   parameter {
     name  = "slow_query_log"
-    value = var.enable_slow_query_log? 1: 0
+    value = var.enable_slow_query_log ? 1 : 0
   }
 }
 
@@ -113,7 +116,7 @@ resource "aws_rds_cluster" "default" {
   availability_zones                  = var.azs
   engine                              = var.engine
   engine_version                      = var.engine_version
-  iam_roles                           = [ "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS" ]
+  iam_roles                           = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"]
   master_username                     = var.username
   master_password                     = var.password
   final_snapshot_identifier           = "${var.final_snapshot_identifier}-${random_id.server[0].hex}"
@@ -135,7 +138,7 @@ resource "aws_rds_cluster" "default" {
   tags = merge(var.custom_tags)
 
   lifecycle {
-    ignore_changes = [ "master_password" ]
+    ignore_changes = ["master_password"]
   }
 }
 
@@ -205,17 +208,27 @@ resource "aws_appautoscaling_policy" "autoscaling" {
 }
 
 resource "aws_secretsmanager_secret" "db_secretmanager" {
-  name = var.identifier_prefix != "" ? format("%s-cluster", var.identifier_prefix) : format("%s-aurora-cluster", var.env)
-  description = "DB instance credentials"
+  for_each = {
+    "db_master_password" = "Database master password"
+    "db_master_user"     = "Database master user"
+    "db_address"         = "Database address"
+    "db_port"            = "Database port"
+    "db_endpoint"        = "Database address and port"
+  }
+  name        = "${local.name_identifier}-${each.key}"
+  description = "${each.value} for ${local.name_identifier}"
+  tags        = var.custom_tags
 }
 
 resource "aws_secretsmanager_secret_version" "db_secret_version" {
-  secret_id = aws_secretsmanager_secret.db_secretmanager.id
-  secret_string = jsonencode({
-    db_master_password = aws_rds_cluster.default[0].master_password
-    db_master_user = aws_rds_cluster.default[0].master_username
-    db_address = join("", aws_rds_cluster.default.*.endpoint)
-    db_port = var.port
-    db_endpoint = "${join("", aws_rds_cluster.default.*.endpoint)}:${var.port}"
-  })
+  depends_on = [ aws_secretsmanager_secret.db_secretmanager ]
+  for_each = {
+    "db_master_password" = aws_rds_cluster.default[0].master_password
+    "db_master_user"     = aws_rds_cluster.default[0].master_username
+    "db_address"         = join("", aws_rds_cluster.default.*.endpoint)
+    "db_port"            = var.port
+    "db_endpoint"        = "${join("", aws_rds_cluster.default.*.endpoint)}:${var.port}"
+  }
+  secret_id     = aws_secretsmanager_secret.db_secretmanager[each.key].id
+  secret_string = each.value
 }
