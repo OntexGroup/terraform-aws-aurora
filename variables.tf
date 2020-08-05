@@ -298,11 +298,6 @@ variable "enable_slow_query_log" {
   default = false
 }
 
-variable "cloudwatch_sns_topic_arn" {
-  type        = string
-  description = "Precise on which SNS topic trigger events on Slack"
-} 
-
 variable "enable_general_log" {
   type = bool
   description = "This value will enable general log to cloudwatch for the cluster"
