@@ -211,7 +211,8 @@ resource "aws_secretsmanager_secret" "db_secretmanager" {
   for_each = {
     "db_master_password" = "Database master password"
     "db_master_user"     = "Database master user"
-    "db_address"         = "Database address"
+    "db_address"         = "Database writer address"
+    "db_address_ro"      = "Database reader address"
     "db_port"            = "Database port"
     "db_endpoint"        = "Database address and port"
   }
@@ -221,11 +222,12 @@ resource "aws_secretsmanager_secret" "db_secretmanager" {
 }
 
 resource "aws_secretsmanager_secret_version" "db_secret_version" {
-  depends_on = [ aws_secretsmanager_secret.db_secretmanager ]
+  depends_on = [aws_secretsmanager_secret.db_secretmanager]
   for_each = {
     "db_master_password" = aws_rds_cluster.default[0].master_password
     "db_master_user"     = aws_rds_cluster.default[0].master_username
     "db_address"         = join("", aws_rds_cluster.default.*.endpoint)
+    "db_address_ro"      = join("", aws_rds_cluster.default.*.reader_endpoint)
     "db_port"            = var.port
     "db_endpoint"        = "${join("", aws_rds_cluster.default.*.endpoint)}:${var.port}"
   }
