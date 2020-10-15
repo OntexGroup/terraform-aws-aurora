@@ -103,5 +103,16 @@ resource "aws_db_event_subscription" "db_event" {
   sns_topic   = var.cloudwatch_sns_topic_arn
 
   source_type = "db-instance"
+  event_categories = [
+    "availability",
+    "deletion",
+    "configuration change",
+    "failover",
+    "failure",
+    "maintenance",
+    "recovery",
+    "restoration"
+  ]
+
   tags        = var.custom_tags
 }
